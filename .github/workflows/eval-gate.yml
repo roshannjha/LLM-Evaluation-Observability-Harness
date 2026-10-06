@@ -1,0 +1,50 @@
+name: RAG Eval Gate
+
+# Blocks merges when the RAG app regresses below the quality thresholds.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  eval-gate:
+    runs-on: ubuntu-latest
+    env:
+      # Local embeddings keep CI keyless for ingestion/retrieval.
+      EMBEDDING_BACKEND: local
+      LLM_BACKEND: grok
+      GENERATION_MODEL: grok-3
+      JUDGE_MODEL: grok-3
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+      FAITHFULNESS_MIN: "0.90"
+      TOXICITY_MAX: "0.05"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[eval]"
+
+      - name: Download corpus (SEC filings)
+        run: python scripts/download_corpus.py --csv data/edgar_filings.csv --out data/corpus --num-10k 3 --num-10q 3
+
+      - name: Ingest corpus into Chroma
+        run: python -m harness.ingest --reset
+
+      # golden_dataset.jsonl is committed; regenerate only if you want fresh data.
+      - name: Run eval gate (faithfulness >= 0.90, toxicity <= 0.05)
+        run: python scripts/run_eval.py
+
+      - name: Upload eval summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-summary
+          path: reports/eval_summary.md

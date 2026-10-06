@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Secrets
+.env
+
+# Data artifacts (keep the golden set + CSV, ignore heavy/raw + generated stores)
+data/corpus/
+data/chroma/
+reports/*.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Markdown docs (keep README.md only)
+*.md
+!README.md
