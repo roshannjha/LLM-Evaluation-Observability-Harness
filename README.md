@@ -61,5 +61,3 @@ Default mode uses **local HuggingFace embeddings** (zero cost, no key); an LLM k
 | [src/harness/tracing.py](src/harness/tracing.py) | Langfuse spans + failure taxonomy |
 | [scripts/run_eval.py](scripts/run_eval.py) | Batch eval + CI gate |
 
-See [BUILD_LOG.md](BUILD_LOG.md) for a full what/why/how record of how it was built,
-and [PROJECT_PLAN.md](PROJECT_PLAN.md) for the phased plan.
